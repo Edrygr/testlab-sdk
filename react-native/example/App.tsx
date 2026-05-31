@@ -3,14 +3,15 @@ import { Button, StyleSheet, Text, View } from 'react-native'
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { TestLabSDK, useTestLab, useScreenTracker } from 'testlab-sdk-rn'
+import { TESTLAB_API_KEY, TESTLAB_APP_ID, TESTLAB_DEBUG } from '@env'
 
 const Stack = createNativeStackNavigator()
 
 // Initialize SDK once at app startup
 TestLabSDK.init({
-  apiKey: 'tl_live_xxxxxxxxxxxx',
-  appId: 'app.testlab.example',
-  debug: __DEV__,
+  apiKey: TESTLAB_API_KEY,
+  appId: TESTLAB_APP_ID,
+  debug: TESTLAB_DEBUG === 'true',
 }).catch(console.error)
 
 // ─── Screens ──────────────────────────────────────────────────────────────────

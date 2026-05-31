@@ -12,9 +12,9 @@ class ExampleApplication : Application() {
         TestLabSDK.init(
             context = this,
             config = TestLabConfig(
-                apiKey = "tl_live_xxxxxxxxxxxx",
-                appId = "app.testlab.example",
-                debug = BuildConfig.DEBUG
+                apiKey = BuildConfig.TESTLAB_API_KEY,
+                appId = BuildConfig.TESTLAB_APP_ID,
+                debug = BuildConfig.TESTLAB_DEBUG
             )
         )
     }

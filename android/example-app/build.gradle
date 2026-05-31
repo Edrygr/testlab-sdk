@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'co.uzzu.dotenv.gradle' version '4.0.0'
 }
 
 android {
@@ -13,6 +14,10 @@ android {
         targetSdk 34
         versionCode 1
         versionName '1.0'
+
+        buildConfigField "String", "TESTLAB_API_KEY", "\"${env.TESTLAB_API_KEY.orElse('tl_live_xxxxxxxxxxxx')}\""
+        buildConfigField "String", "TESTLAB_APP_ID",  "\"${env.TESTLAB_APP_ID.orElse('app.testlab.example')}\""
+        buildConfigField "boolean", "TESTLAB_DEBUG",  "${env.TESTLAB_DEBUG.orElse('false')}"
     }
 
     buildTypes {
@@ -29,7 +34,7 @@ android {
 
     kotlinOptions { jvmTarget = '1.8' }
 
-    buildFeatures { viewBinding true }
+    buildFeatures { viewBinding true; buildConfig true }
 }
 
 dependencies {

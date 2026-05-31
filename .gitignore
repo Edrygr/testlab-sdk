@@ -1,0 +1,33 @@
+# Environment variables — never commit the real ones
+.env
+.env.local
+.env.*.local
+
+# Android
+*.keystore
+local.properties
+android/.gradle/
+android/build/
+android/**/build/
+android/**/*.class
+android/**/*.apk
+android/**/*.aab
+*.iml
+.idea/
+
+# React Native
+react-native/node_modules/
+react-native/example/node_modules/
+react-native/lib/
+react-native/example/android/
+react-native/example/ios/
+react-native/example/.expo/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
