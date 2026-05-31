@@ -1,0 +1,3 @@
+rootProject.name = "testlab-sdk-android"
+include ':testlab-sdk'
+include ':example-app'

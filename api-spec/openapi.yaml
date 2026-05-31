@@ -1,0 +1,270 @@
+openapi: 3.1.0
+info:
+  title: TestLab SDK API
+  version: 1.0.0
+  description: >
+    Internal API consumed by TestLab SDKs (Android, React Native).
+    All endpoints require HTTPS (TLS 1.2+). No PII is transmitted.
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.testlab.app
+    description: Production
+
+security: []
+
+paths:
+  /sdk/status:
+    post:
+      summary: Check SDK activation status
+      operationId: checkStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusRequest'
+      responses:
+        '200':
+          description: Status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /sdk/session:
+    post:
+      summary: Open a new testing session
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSessionResponse'
+
+  /sdk/session/{sessionId}:
+    patch:
+      summary: Close a session with full data
+      operationId: closeSession
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseSessionRequest'
+      responses:
+        '200':
+          description: Session closed
+
+  /sdk/events/batch:
+    post:
+      summary: Upload a batch of events
+      operationId: sendEventBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventBatchRequest'
+      responses:
+        '200':
+          description: Events accepted
+
+  /sdk/heartbeat:
+    post:
+      summary: Confirm session is still active
+      operationId: sendHeartbeat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '200':
+          description: Heartbeat received
+
+components:
+  schemas:
+
+    StatusRequest:
+      type: object
+      required: [apiKey, appId]
+      properties:
+        apiKey:
+          type: string
+          example: tl_live_xxxxxxxxxxxx
+        appId:
+          type: string
+          example: com.myapp
+
+    StatusResponse:
+      type: object
+      properties:
+        active:
+          type: boolean
+        testerId:
+          type: string
+          nullable: true
+          description: Pre-linked tester ID if the tester already authenticated
+        status:
+          type: string
+          enum: [active, inactive, suspended, expired]
+
+    CreateSessionRequest:
+      type: object
+      required: [apiKey, sessionData, deviceData]
+      properties:
+        apiKey:
+          type: string
+        testerId:
+          type: string
+          nullable: true
+        sessionData:
+          $ref: '#/components/schemas/SessionData'
+        deviceData:
+          $ref: '#/components/schemas/DeviceData'
+
+    CreateSessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          example: sess_abc123
+
+    CloseSessionRequest:
+      type: object
+      required: [endTime, duration]
+      properties:
+        endTime:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds
+        duration:
+          type: integer
+          description: Session duration in seconds
+        screens:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScreenView'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventPayload'
+
+    EventBatchRequest:
+      type: object
+      required: [apiKey, events]
+      properties:
+        apiKey:
+          type: string
+        testerId:
+          type: string
+          nullable: true
+        events:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/EventPayload'
+
+    HeartbeatRequest:
+      type: object
+      required: [apiKey, sessionId]
+      properties:
+        apiKey:
+          type: string
+        testerId:
+          type: string
+          nullable: true
+        sessionId:
+          type: string
+
+    SessionData:
+      type: object
+      properties:
+        id:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        launchedFromTestLab:
+          type: boolean
+        dayNumber:
+          type: integer
+          description: Which testing day (1–14) this session falls on
+
+    DeviceData:
+      type: object
+      properties:
+        manufacturer:
+          type: string
+          example: Samsung
+        model:
+          type: string
+          example: Galaxy A32
+        androidVersion:
+          type: string
+          example: "13"
+        sdkInt:
+          type: integer
+          example: 33
+        screenWidth:
+          type: integer
+        screenHeight:
+          type: integer
+        screenDensity:
+          type: number
+        locale:
+          type: string
+          example: es_MX
+        timezone:
+          type: string
+          example: America/Mexico_City
+        networkType:
+          type: string
+          enum: [WIFI, 4G, 5G, ETHERNET, OFFLINE, UNKNOWN]
+        appVersion:
+          type: string
+        appBuildNumber:
+          type: integer
+
+    ScreenView:
+      type: object
+      properties:
+        name:
+          type: string
+        durationSeconds:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    EventPayload:
+      type: object
+      required: [name, timestamp]
+      properties:
+        name:
+          type: string
+          example: button_tapped
+        properties:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds
